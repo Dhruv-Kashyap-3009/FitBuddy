@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}All users — FitBuddy admin{% endblock %}
+
+{% block content %}
+<section class="admin-head">
+  <div>
+    <p class="eyebrow">ADMIN PANEL</p>
+    <h1 class="display">All users</h1>
+  </div>
+  <p class="mono muted">{{ users|length }} STORED · TABLE: users</p>
+</section>
+
+<section class="admin-table-wrap">
+  {% if users %}
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th scope="col" class="mono">ID</th>
+        <th scope="col" class="mono">NAME</th>
+        <th scope="col" class="mono">AGE</th>
+        <th scope="col" class="mono">WEIGHT</th>
+        <th scope="col" class="mono">GOAL</th>
+        <th scope="col" class="mono">INTENSITY</th>
+        <th scope="col" class="mono">PLANS</th>
+        <th scope="col" class="mono">CREATED</th>
+        <th scope="col" class="mono">LATEST</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td class="mono">{{ u.id }}</td>
+        <td>{{ u.name }}</td>
+        <td class="mono">{{ u.age }}</td>
+        <td class="mono">{{ u.weight }} kg</td>
+        <td><span class="tag">{{ u.goal }}</span></td>
+        <td><span class="tag tag-{{ u.intensity }}">{{ u.intensity }}</span></td>
+        <td class="mono">{{ u.plans|length }}</td>
+        <td class="mono muted">{{ u.created_at.strftime('%Y-%m-%d') if u.created_at else '—' }}</td>
+        <td>
+          {% if u.plans %}
+          <a class="link" href="/plan/{{ u.plans[-1].id }}">open plan →</a>
+          {% else %}
+          <span class="muted">none</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">
+    <p>No users yet — the table is empty.</p>
+    <a class="btn-primary" href="/">Generate the first plan</a>
+  </div>
+  {% endif %}
+</section>
+
+<section class="admin-json">
+  <p class="eyebrow">MACHINE-READABLE</p>
+  <p class="muted">The same data is served as JSON at <a class="link" href="/api/users">/api/users</a>.</p>
+</section>
+{% endblock %}

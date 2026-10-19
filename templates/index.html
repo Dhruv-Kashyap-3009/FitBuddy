@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-copy">
+    <p class="eyebrow">INTAKE&nbsp;/&nbsp;7-DAY PROGRAM</p>
+    <h1 class="display">
+      Your week,<br>
+      <em>programmed</em><br>
+      in one pass.
+    </h1>
+    <p class="lede">
+      Tell FitBuddy who you are and what you're chasing — goal, age, weight,
+      intensity — and get a written Monday-to-Sunday training week with sets,
+      reps and rest notes, plus one nutrition or recovery tip to run alongside it.
+    </p>
+
+    <div class="ghost-ledger" aria-hidden="true">
+      <div><span class="mono">MON 01</span><span>Push — chest &amp; triceps</span></div>
+      <div><span class="mono">TUE 02</span><span>Pull — back &amp; biceps</span></div>
+      <div><span class="mono">WED 03</span><span>Legs — quads &amp; glutes</span></div>
+      <div><span class="mono">THU 04</span><span>Rest / mobility</span></div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-card-head">
+      <span class="mono">ATHLETE INTAKE</span>
+      <span class="mono muted">FIELDS: 5</span>
+    </div>
+
+    {% if errors %}
+    <div class="alert" role="alert" aria-live="assertive">
+      <p class="alert-title">This form needs fixing before we can build your week:</p>
+      <ul>
+        {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <form id="intake-form" action="/generate" method="post" novalidate>
+      <div class="field">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" maxlength="80" required
+               placeholder="e.g. Asha"
+               value="{{ form.name }}"
+               aria-describedby="name-hint name-error">
+        <p class="hint" id="name-hint">2–80 characters.</p>
+        <p class="field-error" id="name-error" data-error-for="name" hidden></p>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="age">Age</label>
+          <input type="number" id="age" name="age" min="13" max="100" step="1" required
+                 inputmode="numeric" placeholder="25"
+                 value="{{ form.age }}"
+                 aria-describedby="age-error">
+          <p class="field-error" id="age-error" data-error-for="age" hidden></p>
+        </div>
+        <div class="field">
+          <label for="weight">Weight <span class="unit">(kg)</span></label>
+          <input type="number" id="weight" name="weight" min="30" max="300" step="0.5" required
+                 inputmode="decimal" placeholder="60"
+                 value="{{ form.weight }}"
+                 aria-describedby="weight-error">
+          <p class="field-error" id="weight-error" data-error-for="weight" hidden></p>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="goal">Fitness goal</label>
+        <select id="goal" name="goal" required aria-describedby="goal-error">
+          <option value="weight loss" {% if form.goal == 'weight loss' %}selected{% endif %}>Weight loss</option>
+          <option value="muscle gain" {% if form.goal == 'muscle gain' %}selected{% endif %}>Muscle gain</option>
+          <option value="general wellness" {% if form.goal == 'general wellness' %}selected{% endif %}>General wellness</option>
+        </select>
+        <p class="field-error" id="goal-error" data-error-for="goal" hidden></p>
+      </div>
+
+      <fieldset class="field intensity">
+        <legend>Preferred intensity</legend>
+        <div class="segmented">
+          {% for level in ['low', 'medium', 'high'] %}
+          <label class="seg">
+            <input type="radio" name="intensity" value="{{ level }}"
+                   {% if form.intensity == level %}checked{% endif %} required>
+            <span>{{ level }}</span>
+          </label>
+          {% endfor %}
+        </div>
+        <p class="hint">Sets and rest scale with this: low&nbsp;2–3, medium&nbsp;3, high&nbsp;4+.</p>
+        <p class="field-error" data-error-for="intensity" hidden></p>
+      </fieldset>
+
+      <button type="submit" class="btn-primary">Generate my 7-day plan</button>
+      <p class="form-note mono">POST /generate &nbsp;·&nbsp; validated client + server</p>
+    </form>
+  </div>
+</section>
+
+<section class="how">
+  <p class="eyebrow">WHAT HAPPENS NEXT</p>
+  <ol class="how-steps">
+    <li>
+      <span class="mono step-no">01</span>
+      <h2>Your inputs go to the model</h2>
+      <p>Age, weight, goal and intensity are validated on both sides, then composed into a coach prompt for Google Gemini.</p>
+    </li>
+    <li>
+      <span class="mono step-no">02</span>
+      <h2>Seven days come back structured</h2>
+      <p>Focus, exercises with sets and reps, and a note for every day — stored against your profile in SQLite.</p>
+    </li>
+    <li>
+      <span class="mono step-no">03</span>
+      <h2>You push back, it rewrites</h2>
+      <p>“More cardio”, “more rest days” — feedback regenerates the same week in place, with the change applied across all seven days.</p>
+    </li>
+  </ol>
+</section>
+{% endblock %}

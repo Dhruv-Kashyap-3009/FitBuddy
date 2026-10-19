@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}{{ status }} — FitBuddy{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-copy">
+    <p class="eyebrow">ERROR&nbsp;/&nbsp;{{ status }}</p>
+    <h1 class="display">{{ title }}</h1>
+    <p class="lede">{{ detail }}</p>
+    <a class="btn-primary" href="/">Back to the intake form</a>
+  </div>
+</section>
+{% endblock %}

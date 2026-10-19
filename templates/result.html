@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.name if user else 'Your' }}'s 7-day plan — FitBuddy{% endblock %}
+
+{% block content %}
+<section class="plan-head">
+  <div>
+    <p class="eyebrow">PLAN&nbsp;#{{ plan.id }}{% if plan.source == 'fallback' %}&nbsp;·&nbsp;LOCAL ENGINE{% else %}&nbsp;·&nbsp;GEMINI{% endif %}</p>
+    <h1 class="display plan-title">{{ user.name if user else 'Athlete' }}'s week</h1>
+    <p class="plan-meta mono">
+      {{ user.age if user else '—' }} YRS &nbsp;/&nbsp; {{ user.weight if user else '—' }} KG &nbsp;/&nbsp;
+      {{ user.goal|upper if user else '—' }} &nbsp;/&nbsp; {{ user.intensity|upper if user else '—' }} INTENSITY
+    </p>
+  </div>
+  <div class="plan-actions">
+    <a class="btn-ghost" href="/">New plan</a>
+    <a class="btn-ghost" href="/admin/users">All users</a>
+  </div>
+</section>
+
+{% if flash %}
+<p class="flash" role="status">Plan regenerated — your feedback was applied across the week.</p>
+{% endif %}
+
+<section class="tipbox" aria-labelledby="tip-h">
+  <p class="eyebrow" id="tip-h">{{ user.goal|upper if user else 'GOAL' }} · NUTRITION / RECOVERY</p>
+  <p class="tip-text">{{ tip }}</p>
+</section>
+
+<section class="ledger" aria-label="7-day training week">
+  {% for d in days %}
+  <article class="ledger-row">
+    <div class="ledger-day">
+      <span class="mono day-no">{{ '%02d'|format(loop.index) }}</span>
+      <span class="day-name">{{ d.day[:3]|upper }}</span>
+    </div>
+    <div class="ledger-body">
+      <h2 class="day-focus">{{ d.focus }}</h2>
+      <ul class="exercises">
+        {% for ex in d.workout %}<li>{{ ex }}</li>{% endfor %}
+      </ul>
+      {% if d.notes %}<p class="day-notes">{{ d.notes }}</p>{% endif %}
+    </div>
+  </article>
+  {% else %}
+  <p class="empty">This plan has no days stored. Generate a fresh one from the <a href="/">intake form</a>.</p>
+  {% endfor %}
+</section>
+
+<section class="feedback-card">
+  <p class="eyebrow">FEEDBACK LOOP</p>
+  <h2 class="feedback-h">What should change?</h2>
+  <p class="muted">Your suggestion is sent back to the model with this week's context and the plan is rewritten in place.</p>
+
+  {% if feedback_error %}
+  <p class="field-error visible" role="alert">{{ feedback_error }}</p>
+  {% endif %}
+
+  <form action="/plan/{{ plan.id }}/feedback" method="post" class="feedback-form">
+    <label class="sr-only" for="feedback">Feedback on your plan</label>
+    <textarea id="feedback" name="feedback" rows="3" minlength="3" maxlength="600" required
+              placeholder="e.g. more focus on cardio, include more rest days…"
+              aria-describedby="feedback-hint">{{ feedback }}</textarea>
+    <p class="hint mono" id="feedback-hint">MIN 3 CHARS · POSTS TO /plan/{{ plan.id }}/feedback</p>
+    <button type="submit" class="btn-primary">Regenerate my plan</button>
+  </form>
+
+  {% if plan.feedback %}
+  <p class="last-feedback mono">LAST APPLIED: “{{ plan.feedback }}”</p>
+  {% endif %}
+</section>
+{% endblock %}
